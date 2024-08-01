@@ -1,7 +1,12 @@
 const express = require("express");
-const router = express.Router();
 const path = require("path");
 const os = require("os");
+const GetRoute = require("./routes/GetRoute");
+const UserRoute = require("./routes/UserRoute");
+const AdminRoute = require("./routes/AdminRoute");
+const { AuthRoute } = require("./routes/AuthRoute");
+const router = express.Router();
+//static routes
 router.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "welcome.html"));
 });
@@ -18,5 +23,13 @@ router.get("/server-status", (req, res) => {
   };
   res.json(status);
 });
+router.get("/profileImage", (req, res) => {
+  res.sendFile(path.join(__dirname, ""));
+});
 
+// main routes for the app
+router.use("/get", GetRoute);
+router.use("/auth", AuthRoute);
+router.use("/user", UserRoute);
+router.use("/admin", AdminRoute);
 module.exports = router;
