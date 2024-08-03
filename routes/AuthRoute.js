@@ -26,7 +26,7 @@ function JwtVerifyFunction(req, res, next) {
   });
 }
 
-//Main apis
+
 //tested
 AuthRoute.put("/auto_login", JwtVerifyFunction, async (req, res) => {
   let passwordCheck, result, token;
@@ -47,7 +47,7 @@ try{
 });
 //tested
 AuthRoute.put("/login", async (req, res) => {
-  let passwordCheck, result, token;
+  let passwordCheck, result, token,finalResPonse;
   let { email, password } = req.body;
 try{
   //checks if there is an user by the email
@@ -58,14 +58,16 @@ try{
   if (!passwordCheck) return res.send(ReturnMessage(true, "False Password"));
  //if password matches sends the result
   token = SignJwtFunction({ email, key: result.password });
-  return res.cookie("accessToken", token).send(ReturnMessage(false, "Authenticated user", result));
+  finalResPonse = ReturnMessage(false, "Authenticated user", result)
+  finalResPonse.cookie = token
+  return res.cookie("accessToken", token).send(finalResPonse);
 }catch(error){
   res.send(ReturnMessage(true, error.message,))
 }
 });
 //tested
 AuthRoute.post("/register", async (req, res, next) => {
-  let hashedPassword, token, result, newUser;
+  let hashedPassword, token, result, newUser,finalResPonse;
   let { name, email, password } = req.body;
   try{
   //checks if there is an user by the email
@@ -76,7 +78,9 @@ AuthRoute.post("/register", async (req, res, next) => {
   newUser = new UserModel(newUserGenerator(name, email, hashedPassword));
   result = await newUser.save();
   token = SignJwtFunction({ email, key: hashedPassword }); //generates a jwt token
-  res.cookie("accessToken", token).send(ReturnMessage(false, "User registered", result));
+  finalResPonse = ReturnMessage(false, "User created successfully", result);
+  finalResPonse.cookie = token
+  res.cookie("accessToken", token).send(finalResPonse);
   }catch(error){
     res.send(ReturnMessage(true, error.message));
   }

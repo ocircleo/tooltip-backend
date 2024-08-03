@@ -24,6 +24,7 @@ UserRoute.post("/register-app-name", JwtVerifyFunction, AuthorizeUser, async (re
     res.send(ReturnMessage(true, "App register failed", error));
   }
 });
+//need testing
 UserRoute.put("/update-app-info",JwtVerifyFunction, AuthorizeUser, async (req, res) =>{
     let {data} = req.body;
     let {name} = data
@@ -34,6 +35,7 @@ UserRoute.put("/update-app-info",JwtVerifyFunction, AuthorizeUser, async (req, r
     if(result) email_authenticity = result.publisher_email == req.user.email 
     if(!email_authenticity) return res.send(ReturnMessage(true,"Unauthorized access"));
     //if email matches updates the app data
+    if(data?.downloads) data.downloads = result.downloads;
     result = await AppModel.findOneAndUpdate({name: name},data,{new:true})
     if(result) return res.send(ReturnMessage(false,"Update successfully",result));
     else res.send(ReturnMessage(true,"Update failed"))
@@ -44,9 +46,22 @@ UserRoute.put("/update-app-info",JwtVerifyFunction, AuthorizeUser, async (req, r
     
   }
 );
-UserRoute.put("/publish-app", JwtVerifyFunction, (req, res, next) => {
-  console.log("hitting: " + req.path);
-  res.send({ path: req.path });
+UserRoute.put("/publish-app", JwtVerifyFunction,AuthorizeUser ,async(req, res, next) => {
+  let {name} = req.body;
+  let result,email_authenticity = false;
+  try{
+  //finds the app info from db and verifies the publisher email with the requested email
+  result = await AppModel.findOne({name:name})
+  if(result) email_authenticity = result.publisher_email == req.user.email 
+  if(!email_authenticity) return res.send(ReturnMessage(true,"Unauthorized access"));
+  //if email matches updates the app data
+  result = await AppModel.findOneAndUpdate({name: name},data,{new:true})
+  if(result) return res.send(ReturnMessage(false,"Update successfully",result));
+  else res.send(ReturnMessage(true,"Update failed"))
+
+}catch(error){
+  res.send(ReturnMessage(true,"Update failed",error))
+}
 });
 UserRoute.put("/update-file-privacy", JwtVerifyFunction, (req, res, next) => {
   console.log("hitting: " + req.path);
