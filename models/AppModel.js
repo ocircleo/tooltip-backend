@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 
 const schema = new mongoose.Schema({
   name: { type: "string", required: true },
+  fileName: { type: "string", required: true },
   date_registered: { type: Date, default: Date.now },
   description: { type: "string", required: true },
   price: { type: "number", required: false, default: 0 },
@@ -24,6 +25,13 @@ const schema = new mongoose.Schema({
   last_updated: String,
   downloads: Number,
   latest: Boolean,
+  type: String,
+  size: Number
 });
 const AppModel = mongoose.model("apps", schema);
 module.exports = AppModel;
+/**
+ *  publisher_email: String,
+ *  date_registered
+ * 
+*/
